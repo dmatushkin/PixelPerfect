@@ -26,4 +26,8 @@ class FileItem {
             self.dateCreated = NSDate()
         }
     }
+
+    func compare(nextItem : FileItem) -> Bool {
+        return self.dateCreated.compare(nextItem.dateCreated) == NSComparisonResult.OrderedAscending
+    }
 }

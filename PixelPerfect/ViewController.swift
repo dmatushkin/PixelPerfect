@@ -45,7 +45,7 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     func directoryMonitorDidObserveChange(directoryMonitor: DirectoryMonitor) {
         let path = directoryMonitor.URL.absoluteString.stringByReplacingOccurrencesOfString("file://", withString: "")
         if let content = try? NSFileManager.defaultManager().contentsOfDirectoryAtPath(path){
-            if let latest = content.filter( { $0.hasPrefix(self.screenshotFilePrefix) } ).map( {path + $0} ).map( { FileItem(path: $0) } ).sort( { $0.dateCreated.compare($1.dateCreated) == NSComparisonResult.OrderedAscending } ).last {
+            if let latest = content.filter( { $0.hasPrefix(self.screenshotFilePrefix) } ).map( {path + $0} ).map( { FileItem(path: $0) } ).sort( { $0.compare($1) } ).last {
                 if latest.filePath != self.latestFilePath {
                     self.latestFilePath = latest.filePath
                     dispatch_async(dispatch_get_main_queue()) {
