@@ -28,8 +28,8 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     var imageMousePosition : NSPoint?
     var imageSavedMousePosition : NSPoint?
     var didAcceptMouseMoveEvents = false
-    //let crosshairDelegate = CrosshairLayerDelegate()
-    //let crosshairLayer = CALayer()
+    let crosshairDelegate = CrosshairLayerDelegate()
+    let crosshairLayer = CALayer()
 
 
     // MARK: controller workflow
@@ -42,11 +42,11 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
         self.screenshotImageView.alphaValue = CGFloat(self.opacitySlider.floatValue)
         self.monitor.delegate = self
         self.monitor.startMonitoring()
-        /*self.scrollView.wantsLayer = true
+        self.scrollView.wantsLayer = true
         crosshairLayer.frame = self.scrollView.bounds
         crosshairLayer.delegate = self.crosshairDelegate
         self.scrollView.layer?.addSublayer(crosshairLayer)
-        self.view.wantsLayer = true*/
+        self.view.wantsLayer = true
     }
 
     override var representedObject: AnyObject? {
@@ -57,7 +57,7 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func viewDidLayout() {
         super.viewDidLayout()
-        //self.crosshairLayer.frame = self.scrollView.bounds
+        self.crosshairLayer.frame = self.scrollView.bounds
         if let tag = self.trackingRectTag {
             self.view.removeTrackingRect(tag)
         }
@@ -110,8 +110,37 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func mouseExited(theEvent: NSEvent) {
         self.view.window?.acceptsMouseMovedEvents = self.didAcceptMouseMoveEvents
-        self.crosshairView.crosshairLocation = nil
+        self.clearCrosshairMainPosition()
+    }
+
+    func reloadCrosshair() {
         self.crosshairView.needsDisplay = true
+        //self.crosshairLayer.setNeedsDisplay()
+        //self.scrollView.needsDisplay = true
+    }
+
+    func setCrosshairMainPosition() {
+        self.crosshairView.crosshairLocation = self.scrollViewMousePosition
+        //self.crosshairDelegate.crosshairLocation = self.scrollViewMousePosition
+        self.reloadCrosshair()
+    }
+
+    func setCrosshairOriginPosition() {
+        self.crosshairView.savedLocation = self.scrollViewMousePosition
+        //self.crosshairDelegate.savedLocation = self.scrollViewMousePosition
+        self.reloadCrosshair()
+    }
+
+    func clearCrosshairMainPosition() {
+        self.crosshairView.crosshairLocation = nil
+        //self.crosshairDelegate.crosshairLocation = nil
+        self.reloadCrosshair()
+    }
+
+    func clearCrosshairOriginPosition() {
+        self.crosshairView.savedLocation = nil
+        //self.crosshairDelegate.savedLocation = nil
+        self.reloadCrosshair()
     }
 
     func scaleForImageHeight(height : CGFloat) -> CGFloat {
@@ -126,11 +155,7 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func mouseMoved(theEvent: NSEvent) {
         self.scrollViewMousePosition = self.view.convertPoint(self.view.convertPoint(theEvent.locationInWindow, fromView: nil), toView: self.scrollView)
-        self.crosshairView.crosshairLocation = self.scrollViewMousePosition
-        self.crosshairView.needsDisplay = true
-        //self.crosshairDelegate.crosshairLocation = self.view.convertPoint(self.view.convertPoint(theEvent.locationInWindow, fromView: nil), toView: self.scrollView)
-        //self.crosshairLayer.setNeedsDisplay()
-        //self.scrollView.needsDisplay = true
+        self.setCrosshairMainPosition()
 
         if self.designImageView.image != nil {
             let imagePosition = self.view.convertPoint(self.view.convertPoint(theEvent.locationInWindow, fromView: nil), toView: self.designImageView)
@@ -151,13 +176,12 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func keyDown(theEvent: NSEvent) {
         if theEvent.characters == "s" {
-            self.crosshairView.savedLocation = self.scrollViewMousePosition
+            self.setCrosshairOriginPosition()
             self.imageSavedMousePosition = self.imageMousePosition
         }
         if theEvent.keyCode == 53 {
-            self.crosshairView.savedLocation = nil
+            self.clearCrosshairOriginPosition()
             self.imageSavedMousePosition = nil
-            self.crosshairView.needsDisplay = true
         }
     }
 }
