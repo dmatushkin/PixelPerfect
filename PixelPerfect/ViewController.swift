@@ -10,6 +10,12 @@ import Cocoa
 
 class ViewController: NSViewController, DirectoryMonitorDelegate {
 
+    enum MouseFollowMode {
+        case HasNoPoints
+        case HasOnePoint
+        case HasTwoPoints
+    }
+
     // MARK: outlets
     @IBOutlet weak var scrollView: NSScrollView!
     @IBOutlet weak var designImageView: NSImageView!
@@ -30,6 +36,7 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     var didAcceptMouseMoveEvents = false
     let crosshairDelegate = CrosshairLayerDelegate()
     let crosshairLayer = CALayer()
+    var mouseMode = MouseFollowMode.HasNoPoints
 
 
     // MARK: controller workflow
@@ -155,33 +162,47 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func mouseMoved(theEvent: NSEvent) {
         self.scrollViewMousePosition = self.view.convertPoint(self.view.convertPoint(theEvent.locationInWindow, fromView: nil), toView: self.scrollView)
-        self.setCrosshairMainPosition()
+        if self.mouseMode != MouseFollowMode.HasTwoPoints  {
+            self.setCrosshairMainPosition()
 
-        if self.designImageView.image != nil {
-            let imagePosition = self.view.convertPoint(self.view.convertPoint(theEvent.locationInWindow, fromView: nil), toView: self.designImageView)
-            let scale : CGFloat = self.scaleForImageHeight(self.designImageView.image!.size.height)
-            self.imageMousePosition = NSMakePoint(imagePosition.x * scale, (self.designImageView.image!.size.height - imagePosition.y)*scale)
-            if let prevPos = self.imageSavedMousePosition {
-                let dx = self.imageMousePosition!.x - prevPos.x
-                let dy = self.imageMousePosition!.y - prevPos.y
-                self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string(2))x\(self.imageMousePosition!.y.string(2)) \(dx.string(2))x\(dy.string(2))"
+            if self.designImageView.image != nil {
+                let imagePosition = self.view.convertPoint(self.view.convertPoint(theEvent.locationInWindow, fromView: nil), toView: self.designImageView)
+                let scale : CGFloat = self.scaleForImageHeight(self.designImageView.image!.size.height)
+                self.imageMousePosition = NSMakePoint(imagePosition.x * scale, (self.designImageView.image!.size.height - imagePosition.y)*scale)
+                if let prevPos = self.imageSavedMousePosition {
+                    let dx = self.imageMousePosition!.x - prevPos.x
+                    let dy = self.imageMousePosition!.y - prevPos.y
+                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string(2))x\(self.imageMousePosition!.y.string(2)) \(dx.string(2))x\(dy.string(2))"
+                } else {
+                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string(2))x\(self.imageMousePosition!.y.string(2))"
+                }
             } else {
-                self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string(2))x\(self.imageMousePosition!.y.string(2))"
+                self.coordinatesLabel.stringValue = "0x0"
             }
-        } else {
-            self.coordinatesLabel.stringValue = "0x0"
         }
-        //print("mouse position \(self.scrollViewMousePosition!.x)x\(self.scrollViewMousePosition!.y)")
     }
 
     override func keyDown(theEvent: NSEvent) {
         if theEvent.characters == "s" {
-            self.setCrosshairOriginPosition()
-            self.imageSavedMousePosition = self.imageMousePosition
+            if self.mouseMode == MouseFollowMode.HasNoPoints {
+                self.setCrosshairOriginPosition()
+                self.imageSavedMousePosition = self.imageMousePosition
+                self.mouseMode = MouseFollowMode.HasOnePoint
+            } else if self.mouseMode == MouseFollowMode.HasOnePoint {
+                self.mouseMode = MouseFollowMode.HasTwoPoints
+            } else if self.mouseMode == MouseFollowMode.HasTwoPoints {
+                self.mouseMode = MouseFollowMode.HasNoPoints
+                self.clearCrosshairOriginPosition()
+                self.imageSavedMousePosition = nil
+                self.setCrosshairMainPosition()
+            }
+
         }
         if theEvent.keyCode == 53 {
+            self.mouseMode = MouseFollowMode.HasNoPoints
             self.clearCrosshairOriginPosition()
             self.imageSavedMousePosition = nil
+            self.setCrosshairMainPosition()
         }
     }
 }
