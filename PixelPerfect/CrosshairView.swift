@@ -15,20 +15,17 @@ class CrosshairView: NSView {
 
     override func drawRect(dirtyRect: NSRect) {
         super.drawRect(dirtyRect)
+        NSGraphicsContext.saveGraphicsState()
+        NSColor.blackColor().setStroke()
         if let position = self.crosshairLocation {
-            NSGraphicsContext.saveGraphicsState()
-            NSColor.blackColor().setStroke()
             NSBezierPath.strokeLineFromPoint(NSMakePoint(0, self.frame.size.height - position.y), toPoint: NSMakePoint(self.frame.size.width, self.frame.size.height - position.y))
             NSBezierPath.strokeLineFromPoint(NSMakePoint(position.x, 0), toPoint: NSMakePoint(position.x, self.frame.size.height))
-            NSGraphicsContext.restoreGraphicsState()
         }
         if let position = self.savedLocation {
-            NSGraphicsContext.saveGraphicsState()
-            NSColor.blackColor().setStroke()
             NSBezierPath.strokeLineFromPoint(NSMakePoint(0, self.frame.size.height - position.y), toPoint: NSMakePoint(self.frame.size.width, self.frame.size.height - position.y))
             NSBezierPath.strokeLineFromPoint(NSMakePoint(position.x, 0), toPoint: NSMakePoint(position.x, self.frame.size.height))
-            NSGraphicsContext.restoreGraphicsState()
         }
+        NSGraphicsContext.restoreGraphicsState()
     }
 
 }

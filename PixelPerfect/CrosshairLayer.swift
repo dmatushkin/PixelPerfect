@@ -10,17 +10,22 @@ import Cocoa
 
 class CrosshairLayerDelegate {
     var crosshairLocation : NSPoint?
+    var savedLocation : NSPoint?
 
     func drawLayer(layer: CALayer, inContext ctx: CGContext) {
+        let context = NSGraphicsContext(CGContext: ctx, flipped: false)
+        NSGraphicsContext.saveGraphicsState()
+        NSGraphicsContext.setCurrentContext(context)
+        NSColor.blackColor().setStroke()
         if let position = self.crosshairLocation {
-            let context = NSGraphicsContext(CGContext: ctx, flipped: false)
-            NSGraphicsContext.saveGraphicsState()
-            NSGraphicsContext.setCurrentContext(context)
-            NSColor.blackColor().setStroke()
             NSBezierPath.strokeLineFromPoint(NSMakePoint(0, layer.frame.size.height - position.y), toPoint: NSMakePoint(layer.frame.size.width, layer.frame.size.height - position.y))
             NSBezierPath.strokeLineFromPoint(NSMakePoint(position.x, 0), toPoint: NSMakePoint(position.x, layer.frame.size.height))
-            NSGraphicsContext.restoreGraphicsState()
         }
+        if let position = self.savedLocation {
+            NSBezierPath.strokeLineFromPoint(NSMakePoint(0, layer.frame.size.height - position.y), toPoint: NSMakePoint(layer.frame.size.width, layer.frame.size.height - position.y))
+            NSBezierPath.strokeLineFromPoint(NSMakePoint(position.x, 0), toPoint: NSMakePoint(position.x, layer.frame.size.height))
+        }
+        NSGraphicsContext.restoreGraphicsState()
     }
 }
 
