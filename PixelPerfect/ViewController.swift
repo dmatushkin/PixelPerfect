@@ -163,9 +163,9 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
                 if let prevPos = self.imageSavedMousePosition {
                     let dx = self.imageMousePosition!.x - prevPos.x
                     let dy = self.imageMousePosition!.y - prevPos.y
-                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string(2))x\(self.imageMousePosition!.y.string(2)) \(dx.string(2))x\(dy.string(2))"
+                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string)x\(self.imageMousePosition!.y.string) \(dx.string)x\(dy.string)"
                 } else {
-                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string(2))x\(self.imageMousePosition!.y.string(2))"
+                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string)x\(self.imageMousePosition!.y.string)"
                 }
             } else {
                 self.coordinatesLabel.stringValue = "0x0"
@@ -200,11 +200,13 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 }
 
 extension CGFloat {
-    func string(fractionDigits:Int) -> String {
-        let formatter = NSNumberFormatter()
-        formatter.minimumFractionDigits = fractionDigits
-        formatter.maximumFractionDigits = fractionDigits
-        return formatter.stringFromNumber(self) ?? "\(self)"
+    var string : String {
+        get {
+            let formatter = NSNumberFormatter()
+            formatter.minimumFractionDigits = 2
+            formatter.maximumFractionDigits = 2
+            return formatter.stringFromNumber(self) ?? "\(self)"
+        }
     }
 }
 
