@@ -41,6 +41,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func application(sender: NSApplication, openFile filename: String) -> Bool {
+        if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController {
+            controller.setScreenshotFolder(filename)
+            return true
+        }
+        return false
+    }
+
     func applicationDidFinishLaunching(aNotification: NSNotification) {
         // Insert code here to initialize your application
     }
