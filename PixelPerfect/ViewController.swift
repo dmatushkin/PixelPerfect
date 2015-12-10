@@ -117,7 +117,10 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func mouseExited(theEvent: NSEvent) {
         self.view.window?.acceptsMouseMovedEvents = self.didAcceptMouseMoveEvents
-        self.clearCrosshairMainPosition()
+        if self.mouseMode != MouseFollowMode.HasTwoPoints {
+            self.scrollViewMousePosition = nil
+            self.setCrosshairMainPosition()
+        }
     }
 
     func reloadCrosshair() {
@@ -135,18 +138,6 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     func setCrosshairOriginPosition() {
         self.crosshairView.savedLocation = self.scrollViewMousePosition
         //self.crosshairDelegate.savedLocation = self.scrollViewMousePosition
-        self.reloadCrosshair()
-    }
-
-    func clearCrosshairMainPosition() {
-        self.crosshairView.crosshairLocation = nil
-        //self.crosshairDelegate.crosshairLocation = nil
-        self.reloadCrosshair()
-    }
-
-    func clearCrosshairOriginPosition() {
-        self.crosshairView.savedLocation = nil
-        //self.crosshairDelegate.savedLocation = nil
         self.reloadCrosshair()
     }
 
@@ -191,19 +182,20 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
             } else if self.mouseMode == MouseFollowMode.HasOnePoint {
                 self.mouseMode = MouseFollowMode.HasTwoPoints
             } else if self.mouseMode == MouseFollowMode.HasTwoPoints {
-                self.mouseMode = MouseFollowMode.HasNoPoints
-                self.clearCrosshairOriginPosition()
-                self.imageSavedMousePosition = nil
-                self.setCrosshairMainPosition()
+                self.cancelSelection()
             }
-
         }
         if theEvent.keyCode == 53 {
-            self.mouseMode = MouseFollowMode.HasNoPoints
-            self.clearCrosshairOriginPosition()
-            self.imageSavedMousePosition = nil
-            self.setCrosshairMainPosition()
+            self.cancelSelection()
         }
+    }
+
+    func cancelSelection() {
+        self.mouseMode = MouseFollowMode.HasNoPoints
+        self.imageSavedMousePosition = nil
+        self.scrollViewMousePosition = nil
+        self.setCrosshairOriginPosition()
+        self.setCrosshairMainPosition()
     }
 }
 
