@@ -154,18 +154,24 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     }
 
     override func keyDown(theEvent: NSEvent) {
-        if theEvent.characters == "s" {
-            if self.mouseMode == MouseFollowMode.HasNoPoints {
-                self.setCrosshairOriginPosition()
-                self.imageSavedMousePosition = self.imageMousePosition
-                self.mouseMode = MouseFollowMode.HasOnePoint
-            } else if self.mouseMode == MouseFollowMode.HasOnePoint {
-                self.mouseMode = MouseFollowMode.HasTwoPoints
-            } else if self.mouseMode == MouseFollowMode.HasTwoPoints {
-                self.cancelSelection()
-            }
+        switch(theEvent.keyCode) {
+        case 1:
+            self.toggleSelection()
+        case 53:
+            self.cancelSelection()
+        default:
+            break
         }
-        if theEvent.keyCode == 53 {
+    }
+
+    func toggleSelection() {
+        if self.mouseMode == MouseFollowMode.HasNoPoints {
+            self.setCrosshairOriginPosition()
+            self.imageSavedMousePosition = self.imageMousePosition
+            self.mouseMode = MouseFollowMode.HasOnePoint
+        } else if self.mouseMode == MouseFollowMode.HasOnePoint {
+            self.mouseMode = MouseFollowMode.HasTwoPoints
+        } else if self.mouseMode == MouseFollowMode.HasTwoPoints {
             self.cancelSelection()
         }
     }
