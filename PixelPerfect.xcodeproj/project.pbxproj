@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		5631CA7E1C195F2400FA07DA /* CrosshairView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5631CA7D1C195F2400FA07DA /* CrosshairView.swift */; };
-		5631CA801C19653200FA07DA /* CrosshairLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5631CA7F1C19653200FA07DA /* CrosshairLayer.swift */; };
 		565B4BFA1C183EDB00FB2921 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565B4BF91C183EDB00FB2921 /* AppDelegate.swift */; };
 		565B4BFC1C183EDB00FB2921 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565B4BFB1C183EDB00FB2921 /* ViewController.swift */; };
 		565B4BFE1C183EDB00FB2921 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 565B4BFD1C183EDB00FB2921 /* Assets.xcassets */; };
@@ -19,7 +18,6 @@
 
 /* Begin PBXFileReference section */
 		5631CA7D1C195F2400FA07DA /* CrosshairView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrosshairView.swift; sourceTree = "<group>"; };
-		5631CA7F1C19653200FA07DA /* CrosshairLayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrosshairLayer.swift; sourceTree = "<group>"; };
 		565B4BF61C183EDB00FB2921 /* PixelPerfect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PixelPerfect.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		565B4BF91C183EDB00FB2921 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		565B4BFB1C183EDB00FB2921 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -68,7 +66,6 @@
 				565B4C081C1865ED00FB2921 /* DirectoryMonitor.swift */,
 				565B4C0A1C186B3600FB2921 /* FileItem.swift */,
 				5631CA7D1C195F2400FA07DA /* CrosshairView.swift */,
-				5631CA7F1C19653200FA07DA /* CrosshairLayer.swift */,
 			);
 			path = PixelPerfect;
 			sourceTree = "<group>";
@@ -147,7 +144,6 @@
 				565B4BFC1C183EDB00FB2921 /* ViewController.swift in Sources */,
 				565B4C091C1865ED00FB2921 /* DirectoryMonitor.swift in Sources */,
 				5631CA7E1C195F2400FA07DA /* CrosshairView.swift in Sources */,
-				5631CA801C19653200FA07DA /* CrosshairLayer.swift in Sources */,
 				565B4BFA1C183EDB00FB2921 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -28,4 +28,7 @@ class CrosshairView: NSView {
         NSGraphicsContext.restoreGraphicsState()
     }
 
+    override func hitTest(aPoint: NSPoint) -> NSView? {
+        return nil
+    }
 }

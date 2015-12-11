@@ -23,7 +23,6 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     @IBOutlet weak var opacitySlider: NSSlider!
     @IBOutlet weak var crosshairView: CrosshairView!
     @IBOutlet weak var coordinatesLabel: NSTextField!
-    @IBOutlet weak var magnificationSlider: NSSlider!
 
     // MARK: local variables
     let monitor = DirectoryMonitor()
@@ -33,8 +32,6 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     var scrollViewMousePosition : NSPoint?
     var imageMousePosition : NSPoint?
     var imageSavedMousePosition : NSPoint?
-    let crosshairDelegate = CrosshairLayerDelegate()
-    let crosshairLayer = CALayer()
     var mouseMode = MouseFollowMode.HasNoPoints
 
 
@@ -44,15 +41,9 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
         self.scrollView.allowsMagnification = true
         self.scrollView.maxMagnification = 100.0
         self.scrollView.minMagnification = 0.001
-        //self.designImageView.image = NSImage(contentsOfFile: "/Users/dmatushkin/Downloads/my-settings-specs/JPEG/6.jpg")
         self.screenshotImageView.alphaValue = CGFloat(self.opacitySlider.floatValue)
         self.monitor.delegate = self
         self.monitor.startMonitoring()
-        self.scrollView.wantsLayer = true
-        crosshairLayer.frame = self.scrollView.bounds
-        crosshairLayer.delegate = self.crosshairDelegate
-        self.scrollView.layer?.addSublayer(crosshairLayer)
-        self.view.wantsLayer = true
     }
 
     override var representedObject: AnyObject? {
@@ -63,7 +54,6 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     override func viewDidLayout() {
         super.viewDidLayout()
-        self.crosshairLayer.frame = self.scrollView.bounds
         if let tag = self.trackingRectTag {
             self.view.removeTrackingRect(tag)
         }
@@ -89,10 +79,6 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     
     @IBAction func sliderValueChanged(sender: NSSlider) {
         self.screenshotImageView.alphaValue = CGFloat(sender.floatValue)
-    }
-
-    @IBAction func magnificationValueChanged(sender: NSSlider) {
-        self.scrollView.magnification = CGFloat(sender.floatValue)
     }
 
     func setDesign(path : String) {
@@ -123,19 +109,15 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     func reloadCrosshair() {
         self.crosshairView.needsDisplay = true
-        //self.crosshairLayer.setNeedsDisplay()
-        //self.scrollView.needsDisplay = true
     }
 
     func setCrosshairMainPosition() {
         self.crosshairView.crosshairLocation = self.scrollViewMousePosition
-        //self.crosshairDelegate.crosshairLocation = self.scrollViewMousePosition
         self.reloadCrosshair()
     }
 
     func setCrosshairOriginPosition() {
         self.crosshairView.savedLocation = self.scrollViewMousePosition
-        //self.crosshairDelegate.savedLocation = self.scrollViewMousePosition
         self.reloadCrosshair()
     }
 
