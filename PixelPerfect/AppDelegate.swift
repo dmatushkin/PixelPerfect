@@ -41,9 +41,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func application(sender: NSApplication, openFiles filenames: [String]) {
+        if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController, filename = filenames.first {
+            controller.setDesign(filename.stringByReplacingOccurrencesOfString("file://", withString: ""))
+        }
+    }
+
+    func alertWithMessage(message : String) {
+        let alert = NSAlert()
+        alert.messageText = message
+        alert.addButtonWithTitle("Ok")
+        alert.runModal()
+    }
+
     func application(sender: NSApplication, openFile filename: String) -> Bool {
         if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController {
-            controller.setScreenshotFolder(filename)
+            controller.setDesign(filename.stringByReplacingOccurrencesOfString("file://", withString: ""))
             return true
         }
         return false
