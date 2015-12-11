@@ -33,7 +33,6 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     var scrollViewMousePosition : NSPoint?
     var imageMousePosition : NSPoint?
     var imageSavedMousePosition : NSPoint?
-    var didAcceptMouseMoveEvents = false
     let crosshairDelegate = CrosshairLayerDelegate()
     let crosshairLayer = CALayer()
     var mouseMode = MouseFollowMode.HasNoPoints
@@ -110,13 +109,12 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     // MARK: mouse tracking
 
     override func mouseEntered(theEvent: NSEvent) {
-        self.didAcceptMouseMoveEvents = self.view.window?.acceptsMouseMovedEvents ?? false
         self.view.window?.acceptsMouseMovedEvents = true
         self.view.window?.makeFirstResponder(self.view)
     }
 
     override func mouseExited(theEvent: NSEvent) {
-        self.view.window?.acceptsMouseMovedEvents = self.didAcceptMouseMoveEvents
+        self.view.window?.acceptsMouseMovedEvents = false
         if self.mouseMode != MouseFollowMode.HasTwoPoints {
             self.scrollViewMousePosition = nil
             self.setCrosshairMainPosition()
@@ -163,7 +161,7 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
                 if let prevPos = self.imageSavedMousePosition {
                     let dx = self.imageMousePosition!.x - prevPos.x
                     let dy = self.imageMousePosition!.y - prevPos.y
-                    self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string)x\(self.imageMousePosition!.y.string) \(dx.string)x\(dy.string)"
+                    self.coordinatesLabel.stringValue = "\(prevPos.x.string)x\(prevPos.y.string) \(dx.string)x\(dy.string)"
                 } else {
                     self.coordinatesLabel.stringValue = "\(self.imageMousePosition!.x.string)x\(self.imageMousePosition!.y.string)"
                 }
