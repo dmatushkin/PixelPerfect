@@ -7,9 +7,7 @@
 		<dict>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>public.png</string>
-				<string>public.jpg</string>
-				<string>public.jpeg</string>
+				<string>public.image</string>
 			</array>
 			<key>CFBundleTypeName</key>
 			<string>Image</string>
