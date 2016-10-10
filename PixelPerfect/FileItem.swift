@@ -10,9 +10,9 @@ import Foundation
 
 class FileItem {
     let filePath : String
-    let dateCreated : NSDate
+    let dateCreated : Date
 
-    init(path : String, date : NSDate) {
+    init(path : String, date : Date) {
         self.filePath = path
         self.dateCreated = date
     }
@@ -20,14 +20,14 @@ class FileItem {
     init(path : String) {
         self.filePath = path
         do {
-            let attrs = try NSFileManager.defaultManager().attributesOfItemAtPath(path)
-            self.dateCreated = attrs[NSFileCreationDate] as? NSDate ?? NSDate()
+            let attrs = try FileManager.default.attributesOfItem(atPath: path)
+            self.dateCreated = attrs[FileAttributeKey.creationDate] as? Date ?? Date()
         } catch {
-            self.dateCreated = NSDate()
+            self.dateCreated = Date()
         }
     }
 
-    func compare(nextItem : FileItem) -> Bool {
-        return self.dateCreated.compare(nextItem.dateCreated) == NSComparisonResult.OrderedAscending
+    func compare(_ nextItem : FileItem) -> Bool {
+        return self.dateCreated.compare(nextItem.dateCreated) == ComparisonResult.orderedAscending
     }
 }

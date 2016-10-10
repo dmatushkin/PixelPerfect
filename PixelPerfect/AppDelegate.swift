@@ -11,62 +11,62 @@ import Cocoa
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    @IBAction func openDesignAction(sender: NSMenuItem) {
+    @IBAction func openDesignAction(_ sender: NSMenuItem) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         let result = panel.runModal()
         if result == NSModalResponseOK {
-            if let path = panel.URLs.first?.absoluteString.stringByReplacingOccurrencesOfString("file://", withString: "") {
-                if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController {
+            if let path = panel.urls.first?.absoluteString.replacingOccurrences(of: "file://", with: "") {
+                if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
                     controller.setDesign(path)
                 }
             }
         }
     }
 
-    @IBAction func setScreenshotFolder(sender: NSMenuItem) {
+    @IBAction func setScreenshotFolder(_ sender: NSMenuItem) {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = false
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         let result = panel.runModal()
         if result == NSModalResponseOK {
-            if let path = panel.URLs.first?.absoluteString.stringByReplacingOccurrencesOfString("file://", withString: "") {
-                if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController {
+            if let path = panel.urls.first?.absoluteString.replacingOccurrences(of: "file://", with: "") {
+                if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
                     controller.setScreenshotFolder(path)
                 }
             }
         }
     }
 
-    func application(sender: NSApplication, openFiles filenames: [String]) {
-        if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController, filename = filenames.first {
-            controller.setDesign(filename.stringByReplacingOccurrencesOfString("file://", withString: ""))
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController, let filename = filenames.first {
+            controller.setDesign(filename.replacingOccurrences(of: "file://", with: ""))
         }
     }
 
-    func alertWithMessage(message : String) {
+    func alertWithMessage(_ message : String) {
         let alert = NSAlert()
         alert.messageText = message
-        alert.addButtonWithTitle("Ok")
+        alert.addButton(withTitle: "Ok")
         alert.runModal()
     }
 
-    func application(sender: NSApplication, openFile filename: String) -> Bool {
-        if let controller = NSApplication.sharedApplication().mainWindow?.contentViewController as? ViewController {
-            controller.setDesign(filename.stringByReplacingOccurrencesOfString("file://", withString: ""))
+    func application(_ sender: NSApplication, openFile filename: String) -> Bool {
+        if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
+            controller.setDesign(filename.replacingOccurrences(of: "file://", with: ""))
             return true
         }
         return false
     }
 
-    func applicationDidFinishLaunching(aNotification: NSNotification) {
+    func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Insert code here to initialize your application
     }
 
-    func applicationWillTerminate(aNotification: NSNotification) {
+    func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
 

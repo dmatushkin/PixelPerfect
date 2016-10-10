@@ -9,53 +9,53 @@
 import Foundation
 
 protocol DirectoryMonitorDelegate: class {
-    func directoryMonitorDidObserveChange(directoryMonitor: DirectoryMonitor)
+    func directoryMonitorDidObserveChange(_ directoryMonitor: DirectoryMonitor)
 }
 
 class DirectoryMonitor {
     weak var delegate: DirectoryMonitorDelegate?
     var monitoredDirectoryFileDescriptor: CInt = -1
-    let directoryMonitorQueue = dispatch_queue_create("folder.monitoring.queue", DISPATCH_QUEUE_CONCURRENT)
-    var directoryMonitorSource: dispatch_source_t?
-    var URL: NSURL
+    let directoryMonitorQueue = DispatchQueue(label: "folder.monitoring.queue", attributes: DispatchQueue.Attributes.concurrent)
+    var directoryMonitorSource: DispatchSource?
+    var URL: Foundation.URL
 
     init() {
-        if let desktopPath = NSSearchPathForDirectoriesInDomains(.DesktopDirectory, .UserDomainMask, true).first {
-            self.URL = NSURL(fileURLWithPath: desktopPath)
+        if let desktopPath = NSSearchPathForDirectoriesInDomains(.desktopDirectory, .userDomainMask, true).first {
+            self.URL = Foundation.URL(fileURLWithPath: desktopPath)
         } else {
             print("can't find home dir path")
-            self.URL = NSURL(fileURLWithPath: "/")
+            self.URL = Foundation.URL(fileURLWithPath: "/")
         }
     }
 
-    init(URL: NSURL) {
+    init(URL: Foundation.URL) {
         self.URL = URL
     }
 
     init(path : String) {
-        self.URL = NSURL(fileURLWithPath: path)
+        self.URL = Foundation.URL(fileURLWithPath: path)
     }
 
     func startMonitoring() {
         if directoryMonitorSource == nil && monitoredDirectoryFileDescriptor == -1 {
-            monitoredDirectoryFileDescriptor = open(URL.path!, O_EVTONLY)
-            directoryMonitorSource = dispatch_source_create(DISPATCH_SOURCE_TYPE_VNODE, UInt(monitoredDirectoryFileDescriptor), DISPATCH_VNODE_WRITE, directoryMonitorQueue)
-            dispatch_source_set_event_handler(directoryMonitorSource!) {
+            monitoredDirectoryFileDescriptor = open(URL.path, O_EVTONLY)
+            directoryMonitorSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: monitoredDirectoryFileDescriptor, eventMask: DispatchSource.FileSystemEvent.write, queue: directoryMonitorQueue) as? DispatchSource
+            directoryMonitorSource!.setEventHandler {
                 self.delegate?.directoryMonitorDidObserveChange(self)
                 return
             }
-            dispatch_source_set_cancel_handler(directoryMonitorSource!) {
+            directoryMonitorSource!.setCancelHandler {
                 close(self.monitoredDirectoryFileDescriptor)
                 self.monitoredDirectoryFileDescriptor = -1
                 self.directoryMonitorSource = nil
             }
-            dispatch_resume(directoryMonitorSource!)
+            directoryMonitorSource!.resume()
         }
     }
 
     func stopMonitoring() {
         if directoryMonitorSource != nil {
-            dispatch_source_cancel(directoryMonitorSource!)
+            directoryMonitorSource!.cancel()
         }
     }
 }
