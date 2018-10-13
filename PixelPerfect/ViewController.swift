@@ -158,18 +158,19 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     }
     
     private func processEvent(theEvent: NSEvent, withDrag: Bool) {
-        self.scrollViewMousePosition = self.view.convert(self.view.convert(theEvent.locationInWindow, from: nil), to: self.scrollView)
+        let scrollPosition = self.view.convert(self.view.convert(theEvent.locationInWindow, from: nil), to: self.scrollView)
+        if withDrag {
+            let offset = (self.scrollViewMousePosition?.y ?? 0) - scrollPosition.y
+            self.screenshotOffset += offset
+        }
+        self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: self.screenshotOffset))
+        self.scrollViewMousePosition = scrollPosition
         if self.mouseMode != MouseFollowMode.hasTwoPoints  {
             self.setCrosshairMainPosition()
             if self.designImageView.image != nil {
                 let imagePosition = self.view.convert(self.view.convert(theEvent.locationInWindow, from: nil), to: self.designImageView)
                 let scale : CGFloat = self.scaleForImageHeight(self.designImageView.image!.size.height)
                 let imgPosition = NSMakePoint(imagePosition.x * scale, (self.designImageView.image!.size.height - imagePosition.y)*scale)
-                if withDrag {
-                    let offset = (self.imageMousePosition?.y ?? 0) - imgPosition.y
-                    self.screenshotOffset += offset
-                }
-                self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: self.screenshotOffset))
                 self.imageMousePosition = imgPosition
                 if let prevPos = self.imageSavedMousePosition {
                     let dx = self.imageMousePosition!.x - prevPos.x
