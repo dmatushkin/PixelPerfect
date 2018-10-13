@@ -17,9 +17,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         let result = panel.runModal()
-        if result == NSModalResponseOK {
+        if result == NSApplication.ModalResponse.OK {
             if let path = panel.urls.first?.absoluteString.replacingOccurrences(of: "file://", with: "") {
-                if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
+                if let controller = NSApplication.shared.mainWindow?.contentViewController as? ViewController {
                     controller.setDesign(path)
                 }
             }
@@ -32,9 +32,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         let result = panel.runModal()
-        if result == NSModalResponseOK {
+        if result == NSApplication.ModalResponse.OK {
             if let path = panel.urls.first?.absoluteString.replacingOccurrences(of: "file://", with: "") {
-                if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
+                if let controller = NSApplication.shared.mainWindow?.contentViewController as? ViewController {
                     controller.setScreenshotFolder(path)
                 }
             }
@@ -42,7 +42,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
-        if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController, let filename = filenames.first {
+        if let controller = NSApplication.shared.mainWindow?.contentViewController as? ViewController, let filename = filenames.first {
             controller.setDesign(filename.replacingOccurrences(of: "file://", with: ""))
         }
     }
@@ -55,7 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
-        if let controller = NSApplication.shared().mainWindow?.contentViewController as? ViewController {
+        if let controller = NSApplication.shared.mainWindow?.contentViewController as? ViewController {
             controller.setDesign(filename.replacingOccurrences(of: "file://", with: ""))
             return true
         }

@@ -8,6 +8,18 @@
 
 import Cocoa
 
+extension NSImage {
+    func resizeImage(width: CGFloat, _ height: CGFloat) -> NSImage {
+        let img = NSImage(size: CGSize(width: width, height: height))
+        img.lockFocus()
+        let ctx = NSGraphicsContext.current
+        ctx?.imageInterpolation = .high
+        self.draw(in: NSMakeRect(0, 0, width, height), from: NSMakeRect(0, 0, size.width, size.height), operation: .copy, fraction: 1)
+        img.unlockFocus()
+        return img
+    }
+}
+
 class ViewController: NSViewController, DirectoryMonitorDelegate {
 
     enum MouseFollowMode {
@@ -28,11 +40,12 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     let monitor = DirectoryMonitor()
     let screenshotFilePrefix = "Simulator Screen Shot"
     var latestFilePath = ""
-    var trackingRectTag : NSTrackingRectTag?
+    var trackingRectTag : NSView.TrackingRectTag?
     var scrollViewMousePosition : NSPoint?
     var imageMousePosition : NSPoint?
     var imageSavedMousePosition : NSPoint?
     var mouseMode = MouseFollowMode.hasNoPoints
+    private var screenshotOffset: CGFloat = 0
 
 
     // MARK: controller workflow
@@ -41,6 +54,8 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
         self.scrollView.allowsMagnification = true
         self.scrollView.maxMagnification = 100.0
         self.scrollView.minMagnification = 0.001
+        self.scrollView.contentView.postsBoundsChangedNotifications = true
+        NotificationCenter.default.addObserver(self, selector: #selector(ViewController.boundsDidChange), name: NSView.boundsDidChangeNotification, object: nil)
         self.screenshotImageView.alphaValue = CGFloat(self.opacitySlider.floatValue)
         self.monitor.delegate = self
         self.monitor.startMonitoring()
@@ -66,10 +81,18 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
         let path = directoryMonitor.URL.absoluteString.replacingOccurrences(of: "file://", with: "")
         if let content = try? FileManager.default.contentsOfDirectory(atPath: path){
             if let latest = content.filter( { $0.hasPrefix(self.screenshotFilePrefix) } ).map( {path + $0} ).map( { FileItem(path: $0) } ).sorted( by: { $0.compare($1) } ).last {
-                if latest.filePath != self.latestFilePath {
+                if latest.filePath != self.latestFilePath, let image = NSImage(contentsOfFile: latest.filePath) {
                     self.latestFilePath = latest.filePath
                     DispatchQueue.main.async {
-                        self.screenshotImageView.image = NSImage(contentsOfFile: self.latestFilePath)
+                        if let size = self.designImageView.image?.size, size != image.size {
+                            let finalWidth = size.width
+                            let finalHeigth = image.size.height / image.size.width * size.width
+                            self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: 0))
+                            self.screenshotImageView.image = NSImage(contentsOfFile: self.latestFilePath)?.resizeImage(width: finalWidth, finalHeigth)
+                        } else {
+                            self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: 0))
+                            self.screenshotImageView.image = image
+                        }
                     }
                 }
             }
@@ -82,8 +105,11 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
     }
 
     func setDesign(_ path : String) {
-        self.designImageView.image = NSImage(contentsOfFile: path)
+        guard let path = path.removingPercentEncoding, let image = NSImage(contentsOfFile: path) else { return }
+        self.designImageView.image = image
+        //self.designImageView.frame.size = image?.size ?? CGSize.zero
         self.screenshotImageView.image = nil
+        self.screenshotOffset = 0
     }
 
     func setScreenshotFolder(_ path : String) {
@@ -130,16 +156,21 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
             return 1.0/3.0*1.15
         }
     }
-
-    override func mouseMoved(with theEvent: NSEvent) {
+    
+    private func processEvent(theEvent: NSEvent, withDrag: Bool) {
         self.scrollViewMousePosition = self.view.convert(self.view.convert(theEvent.locationInWindow, from: nil), to: self.scrollView)
         if self.mouseMode != MouseFollowMode.hasTwoPoints  {
             self.setCrosshairMainPosition()
-
             if self.designImageView.image != nil {
                 let imagePosition = self.view.convert(self.view.convert(theEvent.locationInWindow, from: nil), to: self.designImageView)
                 let scale : CGFloat = self.scaleForImageHeight(self.designImageView.image!.size.height)
-                self.imageMousePosition = NSMakePoint(imagePosition.x * scale, (self.designImageView.image!.size.height - imagePosition.y)*scale)
+                let imgPosition = NSMakePoint(imagePosition.x * scale, (self.designImageView.image!.size.height - imagePosition.y)*scale)
+                if withDrag {
+                    let offset = (self.imageMousePosition?.y ?? 0) - imgPosition.y
+                    self.screenshotOffset += offset
+                }
+                self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: self.screenshotOffset))
+                self.imageMousePosition = imgPosition
                 if let prevPos = self.imageSavedMousePosition {
                     let dx = self.imageMousePosition!.x - prevPos.x
                     let dy = self.imageMousePosition!.y - prevPos.y
@@ -151,6 +182,18 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
                 self.coordinatesLabel.stringValue = "0x0"
             }
         }
+    }
+    
+    @objc func boundsDidChange() {
+        self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: self.screenshotOffset))
+    }
+    
+    override func mouseMoved(with theEvent: NSEvent) {
+        self.processEvent(theEvent: theEvent, withDrag: false)
+    }
+    
+    override func mouseDragged(with event: NSEvent) {
+        self.processEvent(theEvent: event, withDrag: true)
     }
 
     override func keyDown(with theEvent: NSEvent) {
