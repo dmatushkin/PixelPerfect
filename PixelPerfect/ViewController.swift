@@ -87,8 +87,10 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
                         if let size = self.designImageView.image?.size, size != image.size {
                             let finalWidth = size.width
                             let finalHeigth = image.size.height / image.size.width * size.width
-                            self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: 0))
+                            let offset = (size.height - finalHeigth) / 2
+                            self.screenshotOffset = offset
                             self.screenshotImageView.image = NSImage(contentsOfFile: self.latestFilePath)?.resizeImage(width: finalWidth, finalHeigth)
+                            self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: offset))
                         } else {
                             self.screenshotImageView.layer?.setAffineTransform(CGAffineTransform(translationX: 0, y: 0))
                             self.screenshotImageView.image = image
@@ -147,10 +149,10 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
         self.reloadCrosshair()
     }
 
-    func scaleForImageHeight(_ height : CGFloat) -> CGFloat {
-        if height < 900 {
+    func scaleForImageWidth(_ width : CGFloat) -> CGFloat {
+        if width < 600 {
             return 1.0
-        } else if height < 1500 {
+        } else if width < 1000 {
             return 0.5
         } else {
             return 1.0/3.0*1.15
@@ -169,7 +171,7 @@ class ViewController: NSViewController, DirectoryMonitorDelegate {
             self.setCrosshairMainPosition()
             if self.designImageView.image != nil {
                 let imagePosition = self.view.convert(self.view.convert(theEvent.locationInWindow, from: nil), to: self.designImageView)
-                let scale : CGFloat = self.scaleForImageHeight(self.designImageView.image!.size.height)
+                let scale : CGFloat = self.scaleForImageWidth(self.designImageView.image!.size.width)
                 let imgPosition = NSMakePoint(imagePosition.x * scale, (self.designImageView.image!.size.height - imagePosition.y)*scale)
                 self.imageMousePosition = imgPosition
                 if let prevPos = self.imageSavedMousePosition {
